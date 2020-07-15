@@ -101,8 +101,10 @@ class Templates:
         template = self.get_random_template_for_mimetype(mimetype_encoding, subfolder)
 
         if template is None:
-            raise Exception("No templates found for {destination} (mimetype_encoding = f{mimetype_encoding}, subfolder = f{subfolder})".format(
-              destination, mimetype_encoding, subfolder
+            raise Exception("No templates found for {destination} (mimetype_encoding = {mimetype_encoding}, subfolder = {subfolder})".format(
+              destination = destination,
+              mimetype_encoding = mimetype_encoding,
+              subfolder = subfolder
             ))
 
         template.write_to(destination)
