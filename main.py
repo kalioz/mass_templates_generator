@@ -88,6 +88,10 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
             mimetype_encoding = guess_type(filename) if (len(line) < 2 or len(line[1].strip()) == 0) else (line[1], None)
             template_subfolder = None if len(line) < 3 else line[2]
 
+            if mimetype_encoding == (None, None):
+                print("Warning - skipping "+destination+" as its mimetype is None")
+                continue
+
             destination = path.join(output_directory, filename)
             destination_folder = path.split(destination)[0]
 
