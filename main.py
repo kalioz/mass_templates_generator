@@ -40,7 +40,7 @@ def perf_counter(start_time: float) -> str:
         "s" : int(delta % 60)
     }
 
-    return "".join("{value}{fmt}".format(value, fmt) for fmt, value in delta_d.items() if value != 0)
+    return "".join("{}{}".format(value, fmt) for fmt, value in delta_d.items() if value != 0)
 
 def number_of_lines(filename):
     with open(filename, "r") as f:
