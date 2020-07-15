@@ -1,0 +1,6 @@
+"test.jpg"
+"test.jpeg"
+"test.png"
+"test.pdf"
+"without_mimetype.jpg";;"subfolder"
+"with_mimetype.jpg";"image/png";"subfolder"
