@@ -1,4 +1,4 @@
-#
+# Mass template generator
 
 This script allows you to create a lot of files issued from the templates you gave it.
 It is useful to generate a lot of fake/anonymised files.
