@@ -8,12 +8,27 @@ Written in Python to allow a simple interface with Ansible.
 ## TL;DR :
 
 ```bash
-python3 main.py --use-memory --output "OUTPUT_FOLDER" --csv-delimiter ";" --csv-quote-char '"' --template-folder "templates" INSTRUCTIONS.csv
+python3 main.py \
+  --use-memory \
+  --output "OUTPUT_FOLDER" \
+  --csv-delimiter ";" \
+  --csv-quote-char '"' \
+  --template-folder "templates" \
+  INSTRUCTIONS.csv
 ```
 
 ## Parameters
 
-## CSV file
+| Parameter         | Description                                                                                                                  | Default          |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------|------------------|
+| --use-memory      | Loads the templates in memory. Allows for faster performance, but can be problematic if your templates are on the heavy side | False / Disabled |
+| --output          | Output folder where the templates will be written                                                                            | "output"         |
+| --csv-delimiter   | Delimiter used by the csv                                                                                                    | ";"              |
+| --csv-quote-char  | Quote character used by the csv                                                                                              | '"'              |
+| --template-folder | Folder containing the templates                                                                                              | "templates"      |
+| __positional__    | CSV file containing the files to creates; see the below section for more information                                         | _N/A_ Required   |
+
+## CSV file format
 
 ```csv
 destination;template_subfolder;mimetype
