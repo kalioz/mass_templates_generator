@@ -61,7 +61,7 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
     if verbose:
         print("[0s] Starting to create the files - "+str(stats['lines'])+" lines to check")
     start_time = time()
-    
+
     with open(csvfile, newline='') as f:
         csv_content = csvreader(f, delimiter=csv_delimiter, quotechar=csv_quote_char)
         for line in csv_content:
@@ -73,7 +73,7 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
             if stats["total"] % stats["checkpoint_value"] == 0:
                 if stats['auto_increase_checkpoint']:
                     stats["checkpoint_value"] = 10 ** (len(str(stats["total"])) - 1 )
-                
+
                 if verbose:
                     print("[{delay}] Doing... {done} / {total} [{done_percent:.0f}%] (success : {done_success}, failed : {done_failed})".format(
                         delay = perf_counter(start_time),
@@ -83,7 +83,7 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
                         done_success = stats['success'],
                         done_failed = stats['total'] - stats['success']
                     ))
-            
+
             filename = line[0]
             mimetype_encoding = guess_type(filename) if (len(line) < 2 or len(line[1].strip()) == 0) else (line[1], None)
             template_subfolder = None if len(line) < 3 else line[2]
@@ -116,6 +116,9 @@ if __name__ == "__main__" :
     INPUT_CSV_FILE = args.csvfile
     CSV_DELIMITER  = args.csv_delimiter
     CSV_QUOTE_CHAR = args.csv_quote_char
+
+    if not path.exists(INPUT_CSV_FILE):
+      raise FileNotFoundError("the csv file '"+ INPUT_CSV_FILE + "' does not exists")
 
     templates = template.Templates(TEMPLATE_DIRECTORY, LOAD_FILES_INTO_MEMORY)
     done_success, done_failed = templatize_csv_line_by_line(INPUT_CSV_FILE, templates, OUTPUT_DIRECTORY, CSV_DELIMITER, CSV_QUOTE_CHAR)
