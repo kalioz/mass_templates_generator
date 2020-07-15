@@ -68,8 +68,6 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
             if len(line) == 0:
                 continue
 
-            # increase the stats
-            stats["total"]+=1
             if stats["total"] % stats["checkpoint_value"] == 0:
                 if stats['auto_increase_checkpoint']:
                     stats["checkpoint_value"] = 10 ** (len(str(stats["total"])) - 1 )
@@ -84,16 +82,19 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
                         done_failed = stats['total'] - stats['success']
                     ))
 
+            # increase the stats
+            stats["total"]+=1
+
             filename = line[0]
             mimetype_encoding = guess_type(filename) if (len(line) < 2 or len(line[1].strip()) == 0) else (line[1], None)
             template_subfolder = None if len(line) < 3 else line[2]
 
+            destination = path.join(output_directory, filename)
+            destination_folder = path.split(destination)[0]
+
             if mimetype_encoding == (None, None):
                 print("Warning - skipping "+destination+" as its mimetype is None")
                 continue
-
-            destination = path.join(output_directory, filename)
-            destination_folder = path.split(destination)[0]
 
             # verify if the destination folder exists; if it has not, force the creation and remember it
             if destination_folder not in output_path_checked:
