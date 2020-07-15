@@ -1,9 +1,15 @@
-# 
+#
 
 This script allows you to create a lot of files issued from the templates you gave it.
 It is useful to generate a lot of fake/anonymised files.
 
 Written in Python to allow a simple interface with Ansible.
+
+## TL;DR :
+
+```bash
+python3 main.py --use-memory --output "OUTPUT_FOLDER" --csv-delimiter ";" --csv-quote-char '"' --template-folder "templates" INSTRUCTIONS.csv
+```
 
 ## Parameters
 
@@ -16,11 +22,11 @@ test2.jpeg;funny_photos
 test3.png;;image/jpg
 test4.pdf
 ```
-Only the "destination" part of each line is needeed. 
+Only the "destination" part of each line is needeed.
 You can specify a subfolder to the template in order to have different categories of templates.
 The mimetype will be guessed from the filename, but can be overriden with the 3rd parameter of each line.
 
-folder structure : 
+folder structure :
 ```console
 .
 └───output
@@ -34,7 +40,7 @@ folder structure :
             snow_bear.png
 ```
 
-with the previous CSV file, the corresponding templates would be used : 
+with the previous CSV file, the corresponding templates would be used :
 ```
 test.jpg                -> templates/template.jpg
 test2.jpeg;funny_photos -> templates/funny_photos/pinguin.jpg
