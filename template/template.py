@@ -17,11 +17,11 @@ class Template:
         self.mimetype_encoding = guess_type(self.path)
 
         self.__load_in_memory = load_in_memory
-    
+
     def load_in_memory(self):
         with open(self.path, "rb") as f:
             self.content = f.read()
-    
+
     def write_to(self, output_path: str):
         # lazy loading
         if self.__load_in_memory and self.content is None:
@@ -34,17 +34,17 @@ class Template:
                 fo.write(self.content)
 
 
-class Templates:    
+class Templates:
     def __init__(self, template_folder, load_in_memory = False, load_subfolder = True):
         self.root_folder = template_folder
         self.template_dict = {}
 
         if not path.exists(self.root_folder):
-            raise FileNotFoundError(f"{self.root_folder} not found")
+            raise FileNotFoundError(self.root_folder + " not found")
 
         if not path.isdir(self.root_folder):
-            raise FileNotFoundError(f"{self.root_folder} is not a directory")
-        
+            raise FileNotFoundError(self.root_folder + " is not a directory")
+
         self.load_templates(load_in_memory=load_in_memory, load_subfolder=load_subfolder)
 
     def load_templates(self, templates_subfolder=None, load_in_memory = False, load_subfolder = True):
@@ -78,29 +78,31 @@ class Templates:
         key = "/"
         if subfolder is not None:
             if subfolder not in self.template_dict:
-                raise Exception(f"templating subfolder {subfolder} not found")
+                raise Exception("templating subfolder "+ subfolder+" not found")
             key = subfolder
 
         return self.template_dict[key].get(mimetype_encoding, [])
-    
+
     def get_random_template_for_mimetype(self, mimetype_encoding, subfolder=None):
         try:
             templates = self.get_templates_for_mimetype(mimetype_encoding, subfolder)
         except Exception as e:
             print(e, file=stderr)
-        
+
         if len(templates) == 0:
             return None
-        
+
         return choice(templates)
 
     def write_random_template_to(self, destination, mimetype_encoding=None, subfolder=None):
         if mimetype_encoding is None:
             mimetype_encoding = guess_type(destination)
-        
+
         template = self.get_random_template_for_mimetype(mimetype_encoding, subfolder)
-        
+
         if template is None:
-            raise Exception(f"No templates found for {destination} (mimetype_encoding = f{mimetype_encoding}, subfolder = f{subfolder})")
+            raise Exception("No templates found for {destination} (mimetype_encoding = f{mimetype_encoding}, subfolder = f{subfolder})".format(
+              destination, mimetype_encoding, subfolder
+            ))
 
         template.write_to(destination)

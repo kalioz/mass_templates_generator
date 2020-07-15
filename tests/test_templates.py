@@ -14,13 +14,13 @@ class TestTemplate(unittest.TestCase):
         t = template.Templates(TEST_FOLDER_TEMPLATES, load_in_memory=False, load_subfolder=False)
 
         self.assertIsNotNone(t.root_folder)
-        self.assertTrue(len(t.template_dict.keys()) == 1, f"only the root folder should be loaded (current keys = {t.template_dict.keys()})")
+        self.assertTrue(len(t.template_dict.keys()) == 1, "only the root folder should be loaded (current keys = "+", ".join(t.template_dict.keys())+")")
 
     
     def test_creation_subfolder_check(self):
         t = template.Templates(TEST_FOLDER_TEMPLATES, load_in_memory=False, load_subfolder=True)
 
-        self.assertTrue(len(t.template_dict.keys()) > 1, f"the root folder and at least one subfolder should be loaded (current keys = {t.template_dict.keys()})")
+        self.assertTrue(len(t.template_dict.keys()) > 1, "the root folder and at least one subfolder should be loaded (current keys = "+", ".join(t.template_dict.keys())+")")
 
     def test_creation_bad_path(self):
         try:

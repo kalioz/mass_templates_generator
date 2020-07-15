@@ -4,7 +4,7 @@ import template
 from argparse import ArgumentParser
 from csv import reader as csvreader
 from time import time
-from sys import stderr
+from sys import stderr, exit
 from os import path, makedirs
 from mimetypes import guess_type
 
@@ -24,7 +24,7 @@ def cli_args():
 
     return parser
 
-def perf_counter(start_time: float):
+def perf_counter(start_time: float) -> str:
     current_time = time()
     if current_time < start_time:
         raise Exception("start_time ({start_time}) should not be higher than the current time ({current_time})")
@@ -40,13 +40,13 @@ def perf_counter(start_time: float):
         "s" : int(delta % 60)
     }
 
-    return "".join(f"{value}{fmt}" for fmt, value in delta_d.items() if value != 0)
+    return "".join("{value}{fmt}".format(value, fmt) for fmt, value in delta_d.items() if value != 0)
 
 def number_of_lines(filename):
     with open(filename, "r") as f:
         return sum(1 for row in f)
 
-def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, output_directory: str, csv_delimiter = ";", csv_quote_char = '"'):
+def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, output_directory: str, csv_delimiter = ";", csv_quote_char = '"', verbose = True):
     # list of output path we created
     # used to reduce the number of io calls
     output_path_checked = []
@@ -58,7 +58,8 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
         "checkpoint_value" : 10000, # verify every X runs at which point we are.
         "auto_increase_checkpoint" : False
     }
-    print(f"[0s] Starting to create the files - {stats['lines']} lines to check")
+    if verbose:
+        print("[0s] Starting to create the files - "+str(stats['lines'])+" lines to check")
     start_time = time()
     
     with open(csvfile, newline='') as f:
@@ -72,7 +73,16 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
             if stats["total"] % stats["checkpoint_value"] == 0:
                 if stats['auto_increase_checkpoint']:
                     stats["checkpoint_value"] = 10 ** (len(str(stats["total"])) - 1 )
-                print(f"[{perf_counter(start_time)}] Doing... {stats['total']} / {stats['lines']} [{int(100*stats['total']/stats['lines'])}%] (success : {stats['success']}, failed : {stats['total'] - stats['success']})")
+                
+                if verbose:
+                    print("[{delay}] Doing... {done} / {total} [{done_percent:.0f}%] (success : {done_success}, failed : {done_failed})".format(
+                        delay = perf_counter(start_time),
+                        done = stats['total'],
+                        total = stats['lines'],
+                        done_percent = 100*stats['total']/stats['lines'],
+                        done_success = stats['success'],
+                        done_failed = stats['total'] - stats['success']
+                    ))
             
             filename = line[0]
             mimetype_encoding = guess_type(filename) if (len(line) < 2 or len(line[1].strip()) == 0) else (line[1], None)
@@ -87,8 +97,15 @@ def templatize_csv_line_by_line(csvfile: str, templates: template.Templates, out
                 output_path_checked.append(destination_folder)
 
             templates.write_random_template_to(destination, mimetype_encoding, template_subfolder)
-    
-    print(f"DONE ! {stats['success']} / {stats['total']} done without errors ( {stats['total'] - stats['success']} failed )")
+            stats['success']+=1
+    if verbose:
+        print("DONE ! {done_success} / {done} done without errors ( {done_failed} failed )".format(
+            done = stats['total'],
+            done_success = stats['success'],
+            done_failed = stats['total'] - stats['success']
+        ))
+
+    return (stats['success'], stats['total'] - stats['success'])
 
 if __name__ == "__main__" :
     args = cli_args().parse_args()
@@ -101,4 +118,11 @@ if __name__ == "__main__" :
     CSV_QUOTE_CHAR = args.csv_quote_char
 
     templates = template.Templates(TEMPLATE_DIRECTORY, LOAD_FILES_INTO_MEMORY)
-    templatize_csv_line_by_line(INPUT_CSV_FILE, templates, OUTPUT_DIRECTORY, CSV_DELIMITER, CSV_QUOTE_CHAR)
+    done_success, done_failed = templatize_csv_line_by_line(INPUT_CSV_FILE, templates, OUTPUT_DIRECTORY, CSV_DELIMITER, CSV_QUOTE_CHAR)
+
+    if done_failed > 0:
+        if done_success == 0:
+            exit(1)
+        else:
+            exit(2)
+    exit(0)
